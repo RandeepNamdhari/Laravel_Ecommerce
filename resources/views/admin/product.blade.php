@@ -845,7 +845,7 @@
 												<a href="#" data-toggle="modal" data-target="#m_default_option_edit" class="btn btn-outline-accent m-btn m-btn--icon m-btn--icon-only" id="option__edit" data-obj="{{json_encode($attribute)}}">
 															<i class="fa fa-edit"></i>
 												</a>
-												  {!! Form::open(array('url'=>'admin/delete_attribute/'.$attribute->products_attributes_id.'/'.$product_id,'method'=>'delete','style'=>'display:inline;')) !!}
+												  {!! Form::open(array('url'=>'admin/delete_attribute/'.$attribute->products_attributes_id.'/'.$product_id,'method'=>'delete','style'=>'display:inline;','class'=>'delete_with_warning')) !!}
                                                 <button type="submit" class="btn btn-outline-primary m-btn m-btn--icon m-btn--icon-only">
                                                             <i class="fa fa-trash"></i>
                                                 </button>
@@ -957,7 +957,7 @@
                                                             <i class="fa fa-edit"></i>
                                                 </a>
 
-                                                {!! Form::open(array('url'=>'admin/delete_attribute/'.$attribute->products_attributes_id.'/'.$product_id,'method'=>'delete','style'=>'display:inline;')) !!}
+                                                {!! Form::open(array('url'=>'admin/delete_attribute/'.$attribute->products_attributes_id.'/'.$product_id,'method'=>'delete','style'=>'display:inline;','class'=>'delete_with_warning')) !!}
                                                 <button type="submit" class="btn btn-outline-primary m-btn m-btn--icon m-btn--icon-only">
                                                             <i class="fa fa-trash"></i>
                                                 </button>
@@ -1075,7 +1075,7 @@
                      @endphp
                       <li style="display: flex;"><span>{{$cur[0]}}</span>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        {!! Form::open(array('route' => array('productFilter.destroy', $product_filter_id), 'name'=>'filterform', 'id'=>'filterform', 'method'=>'DELETE', 'class' => 'inline')) !!} 
+                        {!! Form::open(array('route' => array('productFilter.destroy', $product_filter_id), 'name'=>'filterform', 'id'=>'filterform', 'method'=>'DELETE', 'class' => 'inline delete_with_warning')) !!} 
                             <button type="submit" data-toggle="tooltip" data-placement="bottom" title="{{ trans('labels.Delete') }}"  class="btn btn-outline-primary m-btn m-btn--icon m-btn--icon-only"><i class="fa fa-trash" aria-hidden="true"></i></button>
                               {!! Form::close() !!}</li>
                               @endif
