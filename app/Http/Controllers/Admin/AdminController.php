@@ -13,7 +13,7 @@ class AdminController extends Controller
 {
     	public function login(){
 		if (Auth::guard('admin')->check()) {
-		  return redirect('admin/product');
+		  return redirect('admin/dashboard');
 		}else{
 			$title = array('pageTitle' => 'Login');
 			return view("admin.login",$title);
@@ -48,7 +48,7 @@ class AdminController extends Controller
 			if(auth()->guard('admin')->attempt($adminInfo)) {
 				$admin = auth()->guard('admin')->user();
 				$administrators = DB::table('administrators')->where('myid', $admin->myid)->get();	
-				return redirect()->intended('admin/product')->with('administrators', $administrators);
+				return redirect()->intended('admin/dashboard')->with('administrators', $administrators);
 			}else{
 				return redirect('admin/login')->with('loginError','Incorrect Details');
 			}

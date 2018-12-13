@@ -32,7 +32,10 @@ Route::group(['prefix' => 'admin'], function () {
 		Route::group(['middleware' => 'admin'], function () {
 
 
-
+Route::get('/dashboard',function()
+{
+   return view('admin/dashboard');
+});
 Route::resource('product','ProductController');
 Route::get('get_products','ProductController@getProducts');
 Route::post('/upload_product_image','ProductController@uploadProductImage');

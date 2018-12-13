@@ -9,6 +9,13 @@
 		<script src="{{asset('public/assets/demo/default/custom/components/forms/widgets/bootstrap-switch.js')}}" type="text/javascript"></script>
 		<script src="{{asset('public/assets/demo/default/custom/components/forms/widgets/dropzone.js')}}" type="text/javascript"></script>
 		<script src="{{asset('public/assets/demo/default/custom/components/forms/widgets/select2.js')}}" type="text/javascript"></script>
+		<script src="//cdn.ckeditor.com/4.11.1/full/ckeditor.js"></script>
+
+		<script>
+			var textarea = document.getElementById('ckeditor1');
+//CKEditor.replace(textarea);
+			CKEDITOR.replace( textarea );
+		</script>
 
 		
 

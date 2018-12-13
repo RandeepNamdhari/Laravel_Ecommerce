@@ -41,20 +41,25 @@ class ProductController extends Controller
         else:
             $result[$key]['image']='';
         endif;
+        $totalImages=count($product->productimage);
+        if($totalImages):
+            $result[$key]['image'].='</br>'.$totalImages.' image';
+            $result[$key]['image'].=($totalImages > 1) ? 's':'';
+        endif;
             if($product->productdescription):
-            $result[$key]['products_name']=$product->productdescription->products_name;
+            $result[$key]['products_name']='<a href="'.$product->products_slug.'">'.$product->productdescription->products_name.'</a>';
         else:
             $result[$key]['products_name']='';
         endif;
-            $result[$key]['mrp']=$product->products_price;
+            $result[$key]['mrp']=$product->products_price.'</br>'.$result[$key]['selling_price']=$product->products_price;
             if($product->manufacture):
             $result[$key]['brand']=$product->manufacture->manufacturers_name;
         else:
             $result[$key]['brand']='';
         endif;
-            $result[$key]['selling_price']=$product->products_price;
-            $result[$key]['url']=$product->products_slug;
-            $result[$key]['action']='<a href="'.url('admin/product').'/'.$product->products_id.'" class="btn btn-outline-accent m-btn m-btn--icon m-btn--icon-only"><i class="fa fa-edit"></i></a>'.
+            //$result[$key]['selling_price']=$product->products_price;
+            //$result[$key]['url']=$product->products_slug;
+            $result[$key]['action']='<a href="'.url('admin/product').'/'.$product->products_id.'" class="btn btn-outline-accent m-btn m-btn--icon m-btn--icon-only"><i class="fa fa-edit"></i></a>&nbsp;'.
                      Form::open(array('url'=>'admin/product/'.$product->products_id ,'method'=>'delete','style'=>'display:inline;','class'=>'delete_with_warning')).'<button type="submit" class="btn btn-outline-primary m-btn m-btn--icon m-btn--icon-only delete__modal">
                                                             <i class="fa fa-trash"></i>
                                                 </button>'.

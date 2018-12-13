@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -197,6 +198,10 @@ class Product extends Model
         $productdata=self::productData($request);
         
        try {
+        if(!empty($productdata['products_image'])):
+            
+            Storage::disk('s3')->delete($product->products_image);
+        endif;
 
         $product->update($productdata);
 

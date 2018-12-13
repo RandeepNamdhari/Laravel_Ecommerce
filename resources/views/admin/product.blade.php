@@ -443,6 +443,11 @@
 												
 												</div>
 												</div>
+                                                 @if(isset($product) && $product->products_image !='')<hr>
+                                                 <h5 class="text-center">Previous Image</h5>
+												<div class=""> <img src="{{Storage::disk('s3')->url($product->products_image)}}" height="200" width="100%"></div>
+
+												@endif
 												{!! Form::hidden('product_image',(isset($product))?$product->products_image:'',array('id'=>'product_image_single')) !!}
 
 												{!! Form::hidden('image_value_product',(isset($product) && $product->products_image !='')? Storage::disk('s3')->url($product->products_image):'',array('id'=>'image_drop_value')) !!}
@@ -484,7 +489,7 @@
 														Description:
 													</label>
 													<div class="col-lg-10">
-														{!!Form::textarea('description',(isset($product->productdescription))?$product->productdescription->products_description:'',array('class'=>'summernote')) !!}
+														{!!Form::textarea('description',(isset($product->productdescription))?$product->productdescription->products_description:'',array('id'=>'ckeditor1')) !!}
 
 														<span class="form-control-feedback text-danger">{{ $errors->first('description') }}</span>
 													<!--    <div class="summernote"></div> -->

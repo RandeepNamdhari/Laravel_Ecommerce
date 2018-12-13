@@ -108,7 +108,7 @@ var DatatableHtmlTableDemo = function() {
         title: "#",
         locked: {left: 'xl'},
         sortable: false,
-        width: 20,
+        width: 30,
         selector: {class: 'm-checkbox--solid m-checkbox--brand'}
     },
      {
@@ -116,17 +116,17 @@ var DatatableHtmlTableDemo = function() {
         title: "ID",
         sortable: false,
         filterable: false,
-        width: 40,
-        responsive: {visible: 'lg'},
-        locked: {left: 'xl'},
+        width: 50,
+        
+        
         template: '{{products_id}}'
     },{
         field: "product_name",
         title: "Product Name",
         sortable: true,
         filterable: true,
-        width: 100,
-        responsive: {visible: 'lg'},
+        width: 150,
+        
         locked: {left: 'xl'},
         template: '{{products_name}}'
     } ,{
@@ -134,55 +134,57 @@ var DatatableHtmlTableDemo = function() {
         title: "Image",
         sortable: false,
         filterable: false,
-        width: 50,
-        responsive: {visible: 'lg'},
+        width: 130,
+        
         locked: {left: 'xl'},
         template: '{{image}}'
     },{
         field: "mrp",
-        title: "MRP",
+        title: "MRP /</br>Selling Price",
         sortable: true,
         filterable: true,
-        width: 50,
-        responsive: {visible: 'lg'},
+        width: 100,
+        
         locked: {left: 'xl'},
         template: '{{mrp}}'
-    },{
-        field: "selling_price",
-        title: "Selling Price",
-        sortable: true,
-        filterable: true,
-        width: 50,
-        responsive: {visible: 'lg'},
-        locked: {left: 'xl'},
-        template: '{{selling_price}}'
-    },{
-        field: "manufacture",
-        title: "Brand",
-        sortable: true,
-        filterable: true,
-        width: 100,
-        responsive: {visible: 'lg'},
-        locked: {left: 'xl'},
-        template: '{{brand}}'
     },
-    {
-        field: "url",
-        title: "URL",
-        sortable: true,
-        filterable: true,
-        width: 100,
-        responsive: {visible: 'lg'},
-        locked: {left: 'xl'},
-        template: '{{url}}'
-    },
+    // {
+    //     field: "selling_price",
+    //     title: "Selling Price",
+    //     sortable: true,
+    //     filterable: true,
+    //     width: 50,
+       
+    //     locked: {left: 'xl'},
+    //     template: '{{selling_price}}'
+    // },
+    // {
+    //     field: "manufacture",
+    //     title: "Brand",
+    //     sortable: true,
+    //     filterable: true,
+    //     width: 100,
+    //     responsive: {visible: 'lg'},
+    //     locked: {left: 'xl'},
+    //     template: '{{brand}}'
+    // },
+    // {
+    //     field: "url",
+    //     title: "URL",
+    //     sortable: true,
+    //     filterable: true,
+    //     width: 100,
+    //     responsive: {visible: 'lg'},
+    //     locked: {left: 'xl'},
+    //     template: '{{url}}'
+    // },
     {
         field: "action",
         title: "Action",
         sortable: true,
         filterable: true,
         width: 100,
-        responsive: {visible: 'lg'},
+        
         locked: {left: 'xl'},
         template: '{{action}}'
     }  
