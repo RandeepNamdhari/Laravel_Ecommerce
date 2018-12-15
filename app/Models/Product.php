@@ -6,9 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property array           $collection
+ 
+ */
 class Product extends Model
 {
-   // use Searchable;
+    
+    use Searchable;
+   static $collection = [];
 
    protected $primaryKey='products_id';
    protected $fillable=['products_quantity','products_model','products_image','products_price','warranties','return_policies','VendorName','shipping_price','cod','sale','hot','cancellation','trending','verified','products_weight','products_weight_unit','products_status','products_tax_class_id','products_liked','low_limit','products_slug','video_id','delivery','manufacturers_id','hsntaxSlab'];
@@ -203,7 +209,7 @@ class Product extends Model
             Storage::disk('s3')->delete($product->products_image);
         endif;
 
-        $product->update($productdata);
+        
 
         $product->productcategory()->delete();
         
@@ -220,6 +226,8 @@ $product->special()->delete();
         $product->productdescription()->delete();
 
         $product->productdescription()->create($productdata);
+
+        $product->update($productdata);
 
         return true;
 
@@ -251,5 +259,173 @@ $product->special()->delete();
         );
 
         $request->validate($rules);
+    }
+
+    // Algolia indexing
+    public function toSearchableArray()
+    {
+        //$record = $this->toArray();
+       // print_r($record);die;
+        $newrecord=self::show($this);
+
+
+        //$record['products_id']=$this->products_id;
+        //$record['products_name']='dlfsf';
+
+        return $newrecord;
+    }
+
+     static function show($product)
+    {
+        
+        //$product=Product::where('products_slug','=',$products_slug)->first();
+        $result=array();
+        
+   
+        if(isset($product->products_id)):
+            $result['products_id']=$product->products_id;
+          
+            $result['prouducts_slug']=$product->products_slug;
+
+            $result['products_name']=$product->productdescription ? $product->productdescription->products_name : '';
+
+            $result['products_description']=$product->productdescription ? $product->productdescription->products_description : '';
+
+
+            $result['category_tree']=self::categoryTree($product->productcategory->first()->categories_id);
+           
+
+            $result['mrp']=$product->products_price;
+
+            $result['selling_price']=$product->special ? $product->special->specials_new_products_price : '';
+
+            $result['brand_name']=$product->manufacture ? $product->manufacture->manufacturers_name : '';
+
+            $result['brand_image']=$product->manufacture ? env('ASSET_LINK').$product->manufacture->manufacturers_image : '';
+
+            $result['primary_image']=Storage::disk('s3')->url($product->products_image);
+
+            $result['all_images']=self::productImages($product);
+
+            $result['video_id']=$product->video_id;
+
+            $result['highlights']=$product->producthighlight ? $product->producthighlight->pluck('highlight_text') : [];
+          // print_r($product->productcategory->filrscategories_id);die;
+            $result['product_options']=self::productOptions_al($product);
+
+            $result['vendor_name']=$product->vendor ? $product->vendor->vendor_name : '';
+
+            $result['model_no']=$product->products_model;
+
+            $result['warranty']=$product->warranty ? $product->warranty : new \stdClass;
+
+            $result['return_policy']=$product->returnpolicy ? $product->returnpolicy : new \stdClass;
+
+            $result['delivery']=$product->deliveryIn ? $product->deliveryIn->delivery_in : '';
+
+            $result['cod']=$product->cod;
+
+            $result['sale']=$product->sale;
+
+            $result['hot']=$product->hot;
+
+            $result['trending']=$product->trending;
+
+            $result['verified']=$product->verified;
+
+            $result['cancellation']=$product->cancellation;
+
+            $result['meta']='dumy data';
+
+            $result['title']='title';
+
+            $result['keywords']='new keyworkd';
+
+
+
+        endif;
+
+        return $result;
+    }
+
+     static function productImages($product)
+    {
+        $images=[];
+        if($product->productimage):
+
+           foreach($product->productimage as $image):
+          $images[]=array('image'=>Storage::disk('s3')->url($image->image),'sort'=>$image->order_sort);
+           endforeach;
+
+        endif;
+
+        return $images;
+      
+    }
+
+    static function productOptions_al($product)
+    {
+           $options=[];
+           $existingOptions=[];
+
+           
+        foreach($product->productattribute as $key =>$attribute):
+            if(count($attribute->productoption)>0):
+
+            if(in_array($attribute->productoption->products_options_id, $existingOptions)):
+
+         array_push($options[$attribute->productoption->products_options_id]['option_values'],
+         array('option_value_id'=>$attribute->productoptionvalue->products_options_values_id,'option_value_name'=>$attribute->productoptionvalue->products_options_values_name,'sort'=>$attribute->sort,'view'=>$attribute->view,'price_prefix'=>$attribute->price_prefix,'options_values_price'=>$attribute->options_values_price)
+         ) ;
+     
+
+     else:
+        $curId=$attribute->productoption->products_options_id;
+
+        $options[$curId]['options_id']=$attribute->productoption->products_options_id;
+
+        $options[$curId]['options_name']=$attribute->productoption->products_options_name;
+
+        $options[$curId]['option_values'][]=array('option_value_id'=>$attribute->productoptionvalue->products_options_values_id,'option_value_name'=>$attribute->productoptionvalue->products_options_values_name,'sort'=>$attribute->sort,'view'=>$attribute->view,'price_prefix'=>$attribute->price_prefix,'options_values_price'=>$attribute->options_values_price);
+
+        $existingOptions[]=$curId;
+
+     endif;
+endif;
+        endforeach;
+    
+
+        return array_values($options);
+    }
+
+    static function getcat($category,$i)
+    {
+        
+        $curCat=\App\Models\Category::find($category);
+        
+        $res =new \stdClass();
+        $res->categories_id=$curCat->categories_id;
+        $res->categories_slug=$curCat->categories_slug;
+        $res->categories_name=$curCat->categorydescription->categories_name;
+      
+        
+        array_push(static::$collection, $res);
+
+        if($curCat->parent_id > 0):
+           $i++;
+           
+            self::getcat($curCat->parent_id,$i);
+
+        endif;
+      // print_r($this->collection);
+        return static::$collection;
+    }
+
+    static function categoryTree($category)
+    {
+        $data= self::getcat($category,0);
+       // print_r($data);die;
+       
+        return array_reverse($data);
     }
 }

@@ -1204,10 +1204,10 @@
 											</div>
 										</div>
 										<div class="modal-footer">
-											<button type="button" class="btn btn-brand m-btn" data-dismiss="modal">
+											<button type="button" class="btn btn-secondary m-btn" data-dismiss="modal">
 												Close
 											</button>
-											<button type="button" class="btn btn-secondary m-btn">
+											<button type="button" class=" btn btn-brand m-btn">
 												Submit
 											</button>
 										</div>
@@ -1296,10 +1296,10 @@
 										</div>
 
 										<div class="modal-footer">
-											<button type="button" class="btn btn-brand m-btn" data-dismiss="modal">
+											<button type="button" class="btn btn-secondary m-btn " data-dismiss="modal">
 												Close
 											</button>
-											<button type="button" class="btn btn-secondary m-btn" id="adddefaultOption">
+											<button type="button" class="btn btn-brand m-btn" id="adddefaultOption">
 												Submit
 											</button>
 										</div>

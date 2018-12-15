@@ -391,12 +391,13 @@ public function get_product_options(\App\Models\ProductOption $productoption)
 
 public function add_product_option(Request $request,Product $product)
 {
+    //print_r($request->all());die;
      $rules=['options'=>'required',
              'product_option_value'=>'required',
-             'sort'=>'required|unique:products_attributes,sort,NULL,products_attributes_id,products_id,'.$product->products_id ];
+             'sort'=>'required|unique:products_attributes,sort,NULL,products_attributes_id,products_id,'.$product->products_id.',options_id,'.$request->options ];
 
      $request->validate($rules);
-     //print_r($request->all());die;
+     
 
      
 
