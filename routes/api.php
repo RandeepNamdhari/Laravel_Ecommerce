@@ -27,12 +27,23 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 	
 	Route::group(['namespace' => 'Api'], function () {
 
-		//Route::group(['middleware' => 'admin'], function () {
-Route::resource('product','ProductController');
+ Route::post('register', 'CustomerController@register');
+Route::post('login', 'CustomerController@checkuser');
+//Route::get('open', 'DataController@open');		
+
 
 Route::get('category_products/{categoryslug}','CategoryController@categoryData');
+Route::group(['middleware' => ['jwt.verify']], function () {
 
-//})
+	Route::resource('product','ProductController');
+
+	Route::post('hello',function()
+{
+	echo 'success';
+});
+
+
+});
 
 //});
 });

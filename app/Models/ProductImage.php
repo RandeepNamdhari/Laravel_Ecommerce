@@ -8,7 +8,7 @@ use Laravel\Scout\Searchable;
 class ProductImage extends Model
 {
 	use Searchable;
-   //private static $collection = [];
+   
    protected $touches = ['Product'];
     protected $table='products_images';
     protected $fillable=['image'];

@@ -15,6 +15,7 @@ class Product extends Model
     
     use Searchable;
    static $collection = [];
+   static $categories=[];
 
    protected $primaryKey='products_id';
    protected $fillable=['products_quantity','products_model','products_image','products_price','warranties','return_policies','VendorName','shipping_price','cod','sale','hot','cancellation','trending','verified','products_weight','products_weight_unit','products_status','products_tax_class_id','products_liked','low_limit','products_slug','video_id','delivery','manufacturers_id','hsntaxSlab'];
@@ -290,9 +291,10 @@ $product->special()->delete();
             $result['products_name']=$product->productdescription ? $product->productdescription->products_name : '';
 
             $result['products_description']=$product->productdescription ? $product->productdescription->products_description : '';
+            
 
-
-            $result['category_tree']=self::categoryTree($product->productcategory->first()->categories_id);
+            $result['hierarchicalCategories']=self::categoryTree($product->productcategory->first()->categories_id);
+            $result['categories']=static::$categories;
            
 
             $result['mrp']=$product->products_price;
@@ -310,30 +312,44 @@ $product->special()->delete();
             $result['video_id']=$product->video_id;
 
             $result['highlights']=$product->producthighlight ? $product->producthighlight->pluck('highlight_text') : [];
-          // print_r($product->productcategory->filrscategories_id);die;
-            $result['product_options']=self::productOptions_al($product);
+          
+            $options=self::productOptions_al($product);
+            
+
+    foreach($options as $opt=>$val):
+        $result[$val['options_name']]=array_map(function($k){
+                                    return $k['option_value_name'];
+                                   }, $val['option_values']);
+    endforeach;
+
 
             $result['vendor_name']=$product->vendor ? $product->vendor->vendor_name : '';
 
             $result['model_no']=$product->products_model;
 
-            $result['warranty']=$product->warranty ? $product->warranty : new \stdClass;
+            $warranty=$product->warranty ? $product->warranty : '';
+            $result['warranty_type']=$warranty->warranty_type ? $warranty->warranty_type:'';
+            $result['warranty_description']=$warranty->description ? $warranty->description:'';
 
-            $result['return_policy']=$product->returnpolicy ? $product->returnpolicy : new \stdClass;
+            $return_policy=$product->returnpolicy ? $product->returnpolicy : '';
+            if($return_policy):
+                $result['return_policy']=$product->returnpolicy->return_policy;
+                $result['policy_description']=$product->returnpolicy->description;
+            endif;
 
             $result['delivery']=$product->deliveryIn ? $product->deliveryIn->delivery_in : '';
 
-            $result['cod']=$product->cod;
+            $result['cod']=$product->cod?true:false;
 
-            $result['sale']=$product->sale;
+            $result['sale']=$product->sale?true:false;
 
-            $result['hot']=$product->hot;
+            $result['hot']=$product->hot?true:false;
 
-            $result['trending']=$product->trending;
+            $result['trending']=$product->trending?true:false;
 
-            $result['verified']=$product->verified;
+            $result['verified']=$product->verified?true:false;
 
-            $result['cancellation']=$product->cancellation;
+            $result['cancellation']=$product->cancellation?true:false;
 
             $result['meta']='dumy data';
 
@@ -394,8 +410,7 @@ $product->special()->delete();
 endif;
         endforeach;
     
-
-        return array_values($options);
+        return $options;
     }
 
     static function getcat($category,$i)
@@ -417,15 +432,43 @@ endif;
             self::getcat($curCat->parent_id,$i);
 
         endif;
-      // print_r($this->collection);
+     
         return static::$collection;
     }
 
     static function categoryTree($category)
     {
-        $data= self::getcat($category,0);
-       // print_r($data);die;
-       
-        return array_reverse($data);
+        $newdata=[];
+        $data= array_reverse(self::getcat($category,0));
+        //print_r($data);die;
+        $c_count=count($data);
+       if($c_count > 1 ):
+
+        foreach($data as $key =>$val):
+            
+         if($key > 0):
+        $newdata['lvl'.$key]=$newdata['lvl'.($key-1)].' > '.$val->categories_name;
+        array_push(static::$categories,$val->categories_name);
+
+         else:
+         $newdata['lvl'.$key]=$val->categories_name;
+         array_push(static::$categories,$val->categories_name);
+        endif;
+
+        endforeach;
+
+
+       else:
+        $newdata['lvl0']=$data[0]->categories_name;
+        array_push(static::$categories,$data[0]->categories_name);
+       endif;
+        return $newdata;
+    }
+
+    static function ProductCategories($product)
+    {
+        $categories= $product->productcategory->pluck('categories_id');
+
+        return \App\Models\CategoryDescription::whereIn('categories_id',$categories)->pluck('categories_name');
     }
 }
