@@ -54,6 +54,7 @@ var Treeview = function () {
         $('#m_tree_3').jstree({
             'plugins': ["wholerow", "checkbox", "types"],
             'core': {
+                "multiple":false,
                 "themes" : {
                     "responsive": false
                 },
@@ -66,6 +67,7 @@ var Treeview = function () {
       "three_state" : false, 
       "whole_node" : true,//Used to check/uncheck node only if clicked on checkbox icon, and not on the whole node including label
       "tie_selection" : true
+
     },
             "types" : {
                 "default" : {

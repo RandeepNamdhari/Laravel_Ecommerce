@@ -27,20 +27,24 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 	
 	Route::group(['namespace' => 'Api'], function () {
 
- Route::post('register', 'CustomerController@register');
-Route::post('login', 'CustomerController@checkuser');
+ 
+Route::post('login', 'CustomerController@authenticate');
+Route::post('register', 'CustomerController@registerUser');
+Route::post('mobile_status','CustomerController@checkUser');
+Route::post('send_otp','CustomerController@sendOtp');
+Route::post('resend_otp','CustomerController@resendOtp');
+Route::post('verify_otp','CustomerController@verifyOtp');
+
 //Route::get('open', 'DataController@open');		
 
 
 Route::get('category_products/{categoryslug}','CategoryController@categoryData');
+
+// Authenticated routes
 Route::group(['middleware' => ['jwt.verify']], function () {
 
-	Route::resource('product','ProductController');
+	Route::post('add/address','CustomerController@addAddress');
 
-	Route::post('hello',function()
-{
-	echo 'success';
-});
 
 
 });

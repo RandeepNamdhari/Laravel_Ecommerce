@@ -51,6 +51,14 @@ Route::delete('delete_attribute/{productattribute}/{product}','ProductController
 
 Route::put('product_option_edit/{productattribute}','ProductController@update_product_attribute');
 
+// Assemble Products
+Route::get('assemble_product','AssembleProductController@index');
+Route::get('assemble_product_list','AssembleProductController@getAssembleProducts');
+Route::post('assemble_product','AssembleProductController@store');
+Route::get('fetchproducts/{category}','AssembleProductController@products_by_category');
+Route::get('change_status/{assembleproduct}','AssembleProductController@ChangeStatus');
+Route::delete('assemble_product/{assembleproduct}','AssembleProductController@deleteProduct');
+
 //filter on product
 
 			//Route::get('/productFilters/{product}','ProductController@productFilters');
@@ -73,17 +81,3 @@ Route::get('/logout','AdminController@logout');
    });
 
       });
-
-Route::get('s3',function()
-{
-	$my_file = 'file.txt';
-$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
-$data = 'Test data to see if this works!';
-fwrite($handle, $data);
-
-$storagePath = Storage::disk('s3')->put("gg", $my_file, 'public');
-
-print_r($storagePath);
-
-
-});

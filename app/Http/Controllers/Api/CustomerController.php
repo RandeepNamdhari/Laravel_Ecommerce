@@ -14,9 +14,11 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
     class CustomerController extends Controller
     {
-        public function authenticate($request)
+        public function authenticate(Request $request)
         {
-        	//$this->checkuser($request);
+        	if($validate=$this->loginValidations($request)):
+        		return $validate;
+        	endif;
 
             $credentials = $request->only('mobile', 'password');
             
@@ -34,10 +36,16 @@ use Tymon\JWTAuth\Exceptions\JWTException;
            
         }
 
-        public function register($request)
+        public function registerUser(Request $request)
         {
             
+            if($validate=$this->registerValidations($request)):
+        		return $validate;
+        	endif;
 
+            	if( \App\Models\OtpVerified::where($request->only('mobile','otp'))->exists()):
+
+               
             $user = Customer::create([
                 'mobile' => $request->get('mobile'),
                 'password' => Hash::make($request->get('password')),
@@ -48,6 +56,13 @@ use Tymon\JWTAuth\Exceptions\JWTException;
            $message='Thank you for regester with us !';
 
             return response()->json(compact('token','message'),201);
+
+        else:
+ 
+            $message='Please verify your phone number.';
+        	return response()->json(compact('message'),404);
+
+            endif;
         }
 
         public function getAuthenticatedUser()
@@ -75,47 +90,32 @@ use Tymon\JWTAuth\Exceptions\JWTException;
                     return response()->json(compact('user'));
             }
 
-            public function checkuser(Request $request)
+            public function checkUser(Request $request)
             {
 
-            	$this->loginValidations($request);
+            	if($validate=$this->loginValidations($request)):
+        		return $validate;
+        	endif;
 
         
               if(Customer::where('mobile',$request->mobile)->exists()):
 
-              	if($request->has('password')):
-
-              		return $this->authenticate($request);
-              		
-                   
-              	else:
-
               	return response()->json(array('mobile_status'=>true),200);
 
-              endif;
 
           else:
+              
+              return response()->json(array('mobile_status'=>false),404);
 
-          	if($request->has('password') && $request->verified==true):
+            endif;
 
-                return $this->register($request);
-
-          	else:
-
-          		return response()->json(array('mobile_status'=>false),200);
-          	
-          	endif;
-
-          	
-
-          endif;
-
-
+          
             }
 
 
             public function loginValidations($request)
             {
+
             	$rules = ['mobile' => 'required|max:10'];
 
                 if($request->has('password')):
@@ -123,10 +123,71 @@ use Tymon\JWTAuth\Exceptions\JWTException;
                 	$rules['password']='required';
 
                 endif;
+                if($request->has('otp')):
+
+                    $rules['otp']='required';
+
+                endif;
 
             	 $validator = Validator::make($request->all(), $rules);
-
+                    
             if($validator->fails()){
+
+                    return response()->json($validator->errors()->toJson(), 400);
+            }
+
+            }
+
+            public function addAddress(Request $request)
+            {
+            	$user = JWTAuth::parseToken()->authenticate();
+
+            	print_r($user);die;
+            }
+
+            public function sendOtp(Request $request)
+            {
+                $Otp=new \App\Otp($request->mobile);
+                $Otp->sendOtp();
+            }
+
+            public function resendOtp(Request $request)
+            {
+                $Otp=new \App\Otp($request->mobile);
+                $Otp->resendOtp();
+            }
+
+            public function verifyOtp(Request $request)
+            {
+                $Otp=new \App\Otp($request->mobile);
+                $response=$Otp->verifyOtp($request->otp);
+                $Php_reponse=json_decode($response);
+                if($Php_reponse->type=='success'):
+                    \App\Models\OtpVerified::create($request->all());
+                endif;
+                echo $response;
+
+            }
+
+            public function registerValidations($request)
+            {
+
+                $rules = ['mobile' => 'required|max:10|unique:customers,mobile'];
+
+                
+
+                    $rules['password']='required';
+
+                
+
+                    $rules['otp']='required|min:6';
+
+            
+
+                 $validator = Validator::make($request->all(), $rules);
+                    
+            if($validator->fails()){
+
                     return response()->json($validator->errors()->toJson(), 400);
             }
 

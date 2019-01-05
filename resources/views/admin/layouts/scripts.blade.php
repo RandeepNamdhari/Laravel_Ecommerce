@@ -15,6 +15,40 @@
 			var textarea = document.getElementById('ckeditor1');
 //CKEditor.replace(textarea);
 			CKEDITOR.replace( textarea );
+
+			function saveByAjax(formid)
+	{
+		var dataString = new FormData($("#" + formid)[0]);
+		var url=$('#'+formid).attr('action');
+		$('.text-danger').remove();
+
+	  
+	  $.ajax(
+	{
+		type: "POST",
+		url:url,
+		data: dataString, // Data sent to server, a set of key/value pairs (i.e. form fields and values)
+		contentType: false, // The content type used when sending data to the server.
+		cache: false, // To unable request pages to be cached
+		processData: false,
+		enctype: 'multipart/form-data',
+		success: function(data)
+		{
+		  
+		  if(data.status=='success')
+			location.reload();
+		},
+		  error: function (data) {
+		var errors = $.parseJSON(data.responseText);
+
+				$.each(errors.errors, function (key, value) {
+        //console.log()
+		  $('#'+formid).find('[name="'+key+'"]').parent('div').after('<span class="text-danger">'+value[0]+'</span>');
+			// $('#' + key).parent().addClass('error');
+		});
+	}
+	  });
+	}
 		</script>
 
 		
