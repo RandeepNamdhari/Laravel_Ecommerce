@@ -44,6 +44,8 @@ Route::get('category_products/{categoryslug}','CategoryController@categoryData')
 Route::group(['middleware' => ['jwt.verify']], function () {
 
 	Route::post('add/address','CustomerController@addAddress');
+	Route::post('get/address','CustomerController@customerAllAddress');
+	Route::post('update/address/{customeraddress}','CustomerController@updateAddress');
 
 
 

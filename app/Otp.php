@@ -31,6 +31,12 @@ class Otp
    echo $this->send();
   }
 
+  function autoOtp()
+  {
+    $this->url="http://control.msg91.com/api/sendotp.php?&otp_length=6&authkey=".env('MESSAGE_API_KEY')."&sender=EdhikEco&mobile=".$this->number."&otp_expiry=30";
+   return $this->send();
+  }
+
   function send()
   {
     $curl = curl_init();

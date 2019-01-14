@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
          * @var array
          */
         protected $fillable = [
-            'name', 'email', 'password','mobile',
+            'name', 'email', 'password','mobile','customers_default_address_id',
         ];
 
         /**
@@ -38,5 +38,10 @@ use Illuminate\Database\Eloquent\Model;
         public function getJWTCustomClaims()
         {
             return [];
+        }
+
+        public function customerAddress()
+        {
+            return $this->hasMany('App\Models\CustomerAddress','user_id','customers_id');
         }
     }

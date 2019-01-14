@@ -25,14 +25,16 @@ use Tymon\JWTAuth\Exceptions\JWTException;
          
             try {
                 if (! $token = JWTAuth::attempt($credentials)) {
-                    return response()->json(['error' => 'invalid_credentials'], 400);
+                    return response()->json(['error' => 'invalid_credentials'], 203);
                 }
             } catch (JWTException $e) {
                 return response()->json(['error' => 'could_not_create_token'], 500);
             }
              //print_r($token);die;
             $message='You are login successfully';
-            return response()->json(compact('token','message'),201);
+           
+           // $user->default_address=$user->customerAddress()->where('id',$user->customers_default_address_id)->get()->toArray();
+            return response()->json(compact('token','message'),200);
            
         }
 
@@ -60,7 +62,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
         else:
  
             $message='Please verify your phone number.';
-        	return response()->json(compact('message'),404);
+        	return response()->json(compact('message'),400);
 
             endif;
         }
@@ -70,7 +72,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
                     try {
 
                             if (! $user = JWTAuth::parseToken()->authenticate()) {
-                                    return response()->json(['user_not_found'], 404);
+                                    return response()->json(['user_not_found'], 200);
                             }
 
                     } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
@@ -104,7 +106,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 
           else:
-              
+              $Otp=new \App\Otp($request->mobile);
+                $Otp->autoOtp();
               return response()->json(array('mobile_status'=>false),404);
 
             endif;
@@ -137,12 +140,39 @@ use Tymon\JWTAuth\Exceptions\JWTException;
             }
 
             }
-
+// add customer address
             public function addAddress(Request $request)
             {
             	$user = JWTAuth::parseToken()->authenticate();
 
-            	print_r($user);die;
+                if($response=$this->validateAddress($request)):
+
+                else:
+
+                $address=$this->customerAddress($request);
+
+                if($newAddress=$user->customerAddress()->create($address)):
+                    $response=response()->json(['status'=>'success','message'=>'New address added to your profile.','new_address'=>$newAddress],201);
+
+                if($request->has('is_default_address') && $request->is_default_address==1):
+
+                    $user->customers_default_address_id=$newAddress->id;
+
+                    $user->save();
+
+                    $newAddress->is_default_address=true;
+
+                    $response=response()->json(['status'=>'success','message'=>'New address added to your profile.','new_address'=>$newAddress,],201);
+
+                endif;
+
+            endif;
+
+        endif;
+
+                return $response;
+
+            	
             }
 
             public function sendOtp(Request $request)
@@ -192,4 +222,71 @@ use Tymon\JWTAuth\Exceptions\JWTException;
             }
 
             }
+
+            //Address Validations
+            public function validateAddress($request)
+            {
+                $rules=['name'=>'required',
+                        'mobile'=>'required|max:10|min:10',
+                        'address'=>'required|max:100',
+                        'landmark'=>'required'];
+
+                       $validator = Validator::make($request->all(), $rules);
+                    
+            if($validator->fails()){
+
+                    return response()->json($validator->errors()->toJson(), 400);
+               }
+            }
+            //Customer Address
+            public function customerAddress($request)
+            {
+                return ['ship_name'=>$request->name,
+                        'ship_mobile'=>$request->mobile,
+                        'ship_landmark'=>$request->landmark,
+                        'ship_add1'=>$request->address,
+                        'ship_state'=>$request->state,
+                        'ship_city'=>$request->city,
+                        'ship_pin'=>$request->pincode ];
+            }
+
+            public function customerAllAddress(Request $request)
+            {
+                $user = JWTAuth::parseToken()->authenticate();
+                $address_data=[];
+                foreach($user->customerAddress as $value):
+                    
+                        if($value->id==$user->customers_default_address_id):
+                            $value->is_default_address=true;
+                        endif;
+                        $address_data[]= $value;
+
+                    endforeach;
+               
+                $response=array('status'=>'success','customer_all_address'=>$address_data);
+                return response()->json(compact('response'),201);
+            }
+
+ //update customer address
+            public function updateAddress(Request $request,\App\Models\CustomerAddress $customeraddress)
+            {
+                if($response=$this->validateAddress($request)):
+
+                else:
+
+                    if($customeraddress->update($address=$this->customerAddress($request))):
+
+                         if($request->has('is_default_address') && $request->is_default_address==1):
+                         
+                            $customeraddress->customer()->update(['customers_default_address_id'=>$customeraddress->id]);
+
+                        endif;
+
+                        $response=response()->json(['status'=>'success','message'=>'The address updated successfully.','updated_address'=>$customeraddress],201);
+                    endif;
+                endif;
+                return $response;
+
+            }
+            
     }
